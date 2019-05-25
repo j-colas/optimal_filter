@@ -234,15 +234,15 @@ def noiseFromLoc(data,loc,n_win):
     mask2[itot] = 0
     return mask,noise,mask2
 
-def find_noise_amp(noise,nwin,model,J):
+def find_noise_amp(noise,nwin,model,J,npulse=1000):
 
     a = np.array([],np.float32)
     chi2 = np.array([],np.float32)
     
     N = noise.size
     nshift = int(N/nwin)
-    if nshift>800:
-        nshift=800
+    if nshift>npulse:
+        nshift=npulse
     istart = 0
     for j in range(nshift): #1
             

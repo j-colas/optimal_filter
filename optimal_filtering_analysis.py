@@ -111,7 +111,7 @@ amp2,chi2 = flsa.find_amp(fname,'loc_trigger.npy',mdls,n_win,psd_noise[1],1)
 loc = np.load('loc_trigger.npy')
 data = np.memmap(fname,dtype=np.float32,mode='r')
 noise = flsa.noiseFromLoc(data,loc,n_win)[1] # get noise from data given the loc of trigged events
-ampn,chin = flsa.find_noise_amp(noise,n_win,model,psd_noise[1]) # CHI2 fit of noise events
+ampn,chin = flsa.find_noise_amp(noise,n_win,model,psd_noise[1],amp2.size) # CHI2 fit of noise events
 # FIND BASELINE RESOLUTION
 m, s  = stats.norm.fit(ampn)
 print("baseline resolution = %.2f"%round(s,2))
