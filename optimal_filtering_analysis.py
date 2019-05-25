@@ -28,7 +28,7 @@ from scipy import stats
 #%%### INITIALISATION
 fname = "data_ofa.bin" 
 N = 10000 # number of points / sample
-M = 200   # number of sample
+M = 600   # number of sample
 K = 10    # number of pulse / sample
 
 branch   = .5   # low/high ratio
@@ -120,7 +120,7 @@ print("baseline resolution = %.2f"%round(s,2))
 # MUST BE TUNNED IF THE ANALYSIS WINDOW IS CHANGED
 a = .012
 b = 0
-c = 1.1*(int(n_win/2)+1)
+c = 1.2*(int(n_win/2)+1)
 lamp = np.linspace(np.min(amp2),np.max(amp2),1000)
 cut = a*lamp**2+b*lamp+c
 cutf = a*amp2**2+b*amp2+c
