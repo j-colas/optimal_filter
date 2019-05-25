@@ -28,7 +28,7 @@ from scipy import stats
 #%%### INITIALISATION
 fname = "data_ofa.bin" 
 N = 10000 # number of points / sample
-M = 600   # number of sample
+M = 800   # number of sample
 K = 10    # number of pulse / sample
 
 branch   = .5   # low/high ratio
@@ -99,7 +99,7 @@ print("theoretical resolution = %.2f"%round(sigma_OF,2))
 #%% TRIGGER 
 print("TRIGGER")
 
-tresh   = 4*sigma_OF
+tresh   = 3*sigma_OF
 print("threshold = %.2f"%round(tresh,2)) 
 
 flsa.trigger(tresh,"res_filtre.bin",n_win) # trigger function
@@ -127,11 +127,12 @@ cutf = a*amp2**2+b*amp2+c
 icut = np.where(chi2<cutf)[0]
 
 #%%### [5] PLOT RESULTS
-data = np.memmap(fname,dtype=np.float32,mode='r')[:N]
-filt = np.memmap("res_filtre.bin",dtype=np.float32,mode='r')[:N]
+nn   = N 
+data = np.memmap(fname,dtype=np.float32,mode='r')[:nn]
+filt = np.memmap("res_filtre.bin",dtype=np.float32,mode='r')[:nn]
 loc  = np.load('loc_trigger.npy')
 amp  = np.load('amp_trigger.npy')
-idx  = np.where(loc<= N)[0]
+idx  = np.where(loc<= nn)[0]
 
 #### PLOT PARAMETERS 
 W   = 5.2
