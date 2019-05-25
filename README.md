@@ -20,3 +20,9 @@ A simple cut based on the quality of the fit (chi squared) to reject pile-up eve
 
 ### [5] PLOT THE RESULTS 
 
+![alt stream visualisation](https://raw.githubusercontent.com/j-colas/optimal_filter/master/stream_visu.png)
+
+![alt chi squared vs. amp](https://raw.githubusercontent.com/j-colas/optimal_filter/master/chi2_vs_amp.png)
+
+![alt amplitude spectrums](https://raw.githubusercontent.com/j-colas/optimal_filter/master/amp_spectrum.png)
+
