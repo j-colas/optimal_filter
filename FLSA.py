@@ -102,7 +102,7 @@ def matched_filter(file,nwin,H):
     if res.size > n0:
         res = res[:n0]
         
-    filename = 'res_filtre.bin'
+    filename = file+'_result.bin'
     print("filename saved = ",filename)
     out   = open(filename,'wb')
     out.seek(0)
@@ -143,8 +143,8 @@ def trigger(tresh, file, n_win):
         amp1 = np.delete(amp1,(i-cpt),axis=0)
         cpt += 1  
           
-    np.save('loc_trigger.npy',loc)
-    np.save('amp_trigger.npy',amp1)
+    np.save(file[:5]+'_loc_trigger.npy',loc)
+    np.save(file[:5]+'_amp_trigger.npy',amp1)
 
     print("num. pulses = ",num_loc)
     return;   
@@ -180,7 +180,8 @@ def find_amp(file,loc_file,models,nwin,J,fs):
             chi2 = np.append(chi2,np.float32(c2))
         else :
             continue
-    return a,chi2
+    np.savetxt(file[:5]+"_chi2Amp.txt",[a,chi2])
+    #return a,chi2
 
 def noiseFromLoc(data,loc,n_win):
     '''
