@@ -39,7 +39,7 @@ def load_data(file_name,dtype,mode):
     return np.memmap(file_name,dtype,mode)
 
 #%%##### 
-def make_of(noise_psd,model,n_window,fs):
+def make_of(noise_psd,model,n_window,fs,smooth=500):
     f           = noise_psd[0]
     noise_psd   = noise_psd[1]
     tf_model    = rfft(model)
@@ -50,7 +50,7 @@ def make_of(noise_psd,model,n_window,fs):
     H    = h*np.conj(tf_model)*np.exp(-1j*2*np.pi*f*idM/fs)/noise_psd 
     hi   = irfft(H)
     hid  = zeropadarray(hi) # 0 padding 
-    hids = smoothD(hid)  # smoothing discontinuity
+    hids = smoothD(hid,smooth)  # smoothing discontinuity
     H_OF = rfft(hids)
     return H_OF
 
@@ -149,6 +149,50 @@ def trigger(tresh, file, n_win):
     print("num. pulses = ",num_loc)
     return;   
     
+def trigger_mp(tresh, file, n_win):
+    num_loc   = 0
+    width_min = 0 # points 
+    
+    loc = list(); amp1 = list();
+    data = load_data(file,np.float32,'r') 
+    i = np.where(data>tresh)[0]
+    r_alpha = ranges(i)
+    for n in r_alpha:
+        w = n[1]-n[0]
+        if w > width_min:
+            loc.append(n[0]+np.argmax(data[n[0]:n[1]]))
+            amp1.append(np.max(data[n[0]:n[1]]))
+            num_loc += 1
+   
+    # élimination des détections doubles
+    '''
+    del_i = list()
+    for i in range(len(loc)-1):
+        d = loc[i+1]-loc[i]
+        if d < 200:
+            if amp1[i]<amp1[i+1]:
+                del_i.append(i)
+            else:
+                del_i.append(i+1)
+                
+    loc = np.asarray(loc)
+    amp1 = np.asarray(amp1)
+    cpt = 0
+    for i in del_i:
+        loc = np.delete(loc,(i-cpt),axis=0)
+        amp1 = np.delete(amp1,(i-cpt),axis=0)
+        cpt += 1  
+    '''
+    
+    #np.save(file[:5]+'_loc_trigger.npy',loc)
+    #np.save(file[:5]+'_amp_trigger.npy',amp1)
+    
+    np.savetxt(file[:5]+'_loc_trigger.txt',loc)
+    np.savetxt(file[:5]+'_amp_trigger.txt',amp1)
+
+    print("num. pulses = ",num_loc)
+    return;   
+    
 def find_amp(file,loc_file,models,nwin,J,fs): 
     
     a = np.array([],np.float32)
@@ -182,6 +226,40 @@ def find_amp(file,loc_file,models,nwin,J,fs):
             continue
     np.savetxt(file[:5]+"_chi2Amp.txt",[a,chi2])
     #return a,chi2
+    
+def find_amp_mp(file,loc_file,models,nwin,J,fs): 
+    
+    a = np.array([],np.float32)
+    chi2 = np.array([],np.float32)
+    
+    loc  = np.loadtxt(loc_file)
+    loc = loc.astype(int)
+    data = load_data(file,np.float32,'r')
+    Ls = loc.size
+    for j in range(Ls):
+        locplus = loc[j]+int(nwin/2)
+        if locplus < data.size:
+            
+            istart = loc[j]-int(nwin/2)
+            n = np.arange(istart,istart+nwin,1)
+            
+            V    = np.fft.rfft(data[n])[1::]
+            at = np.zeros(len(models))
+            for k in range(len(models)): 
+                S    = np.fft.rfft(models[k])[1::]
+                num  = np.sum(np.real(np.conj(S)*V)/J[1::])
+                den  = np.sum(np.real(np.conj(S)*S)/J[1::])
+            
+                at[k]=num/den
+            
+            a2 = at[np.argmax(np.abs(at))]
+            
+            c2 = np.sum(np.abs(V-a2*S)**2/J[1::])*(2/(fs*nwin))
+            a = np.append(a,np.float32(a2))
+            chi2 = np.append(chi2,np.float32(c2))
+        else :
+            continue
+    np.savetxt(file[:5]+"_chi2Amp.txt",[a,chi2])
 
 def noiseFromLoc(data,loc,n_win):
     '''
